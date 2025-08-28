@@ -851,7 +851,14 @@ extension ProgressWebViewController: WKNavigationDelegate {
 
 extension ProgressWebViewController: WKDownloadDelegate {
     public func download(_ download: WKDownload, decideDestinationUsing response: URLResponse, suggestedFilename: String) async -> URL? {
-        let destination = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true).appendingPathComponent(suggestedFilename)
+        let fileURL = URL(fileURLWithPath: suggestedFilename)
+        let filenameWithoutExtension = fileURL.deletingPathExtension().lastPathComponent
+        let fileExtension = fileURL.pathExtension
+        var filename = "\(filenameWithoutExtension)-\(Int(Date().timeIntervalSince1970))" // Unique
+        if !fileExtension.isEmpty {
+            filename = "\(filename).\(fileExtension)"
+        }
+        let destination = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true).appendingPathComponent(filename)
         downloadingFileDestinations[download] = destination
         return destination
     }
