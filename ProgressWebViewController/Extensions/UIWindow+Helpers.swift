@@ -6,6 +6,8 @@
 //  Copyright © 2025 Zheng-Xiang Ke. All rights reserved.
 //
 
+import UIKit
+
 extension UIWindow {
     static var key: UIWindow? {
         let allScenes = UIApplication.shared.connectedScenes

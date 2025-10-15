@@ -86,7 +86,8 @@ open class ProgressWebViewController: UIViewController {
     open var rightNavigaionBarItemTypes: [BarButtonItemType] = []
     open var toolbarItemTypes: [BarButtonItemType] = [.back, .forward, .reload, .activity]
     
-    fileprivate var webView: WKWebView?
+    //lilin fileprivate-> public
+    public var webView: WKWebView?
     
     fileprivate var downloadingFileDestinations: [WKDownload: URL] = [:]
     
@@ -312,6 +313,25 @@ open class ProgressWebViewController: UIViewController {
             return targetViewController ?? currentNavigationController
         }
     }
+    
+    // Fileprivate Methods Extension -> Class 这样可以继承重写
+    open func createWebView(webConfiguration: WKWebViewConfiguration) -> WKWebView {
+        let webView = WKWebView(frame: .zero, configuration: webConfiguration)
+        webView.backgroundColor = .systemBackground
+        
+        webView.uiDelegate = self
+        webView.navigationDelegate = self
+        webView.scrollView.delegate = self
+        
+        webView.allowsBackForwardNavigationGestures = true
+        webView.isMultipleTouchEnabled = true
+        
+        webView.addObserver(self, forKeyPath: estimatedProgressKeyPath, options: .new, context: nil)
+        webView.addObserver(self, forKeyPath: titleKeyPath, options: .new, context: nil)
+        
+        webView.scrollView.isScrollEnabled = isScrollEnabled
+        return webView
+    }
 }
 
 // MARK: - Public Methods
@@ -436,28 +456,11 @@ public extension ProgressWebViewController {
 }
 
 // MARK: - Fileprivate Methods
-fileprivate extension ProgressWebViewController {
+ extension ProgressWebViewController {
     var currentNavigationController: UINavigationController? {
         return navigationController ?? parent?.navigationController ?? parent?.presentingViewController?.navigationController ?? UIViewController.currentNavigationController
     }
     
-    func createWebView(webConfiguration: WKWebViewConfiguration) -> WKWebView {
-        let webView = WKWebView(frame: .zero, configuration: webConfiguration)
-        webView.backgroundColor = .systemBackground
-        
-        webView.uiDelegate = self
-        webView.navigationDelegate = self
-        webView.scrollView.delegate = self
-        
-        webView.allowsBackForwardNavigationGestures = true
-        webView.isMultipleTouchEnabled = true
-        
-        webView.addObserver(self, forKeyPath: estimatedProgressKeyPath, options: .new, context: nil)
-        webView.addObserver(self, forKeyPath: titleKeyPath, options: .new, context: nil)
-        
-        webView.scrollView.isScrollEnabled = isScrollEnabled
-        return webView
-    }
     
     func createRequest(url: URL) -> URLRequest {
         var request = URLRequest(url: url)
